@@ -44,4 +44,4 @@ export async function getWorkingDays(): Promise<number> {
     // Fallback to a default of 22 working days if API fails
     return 22;
   }
-} 
+}
