@@ -48,8 +48,15 @@ jobs:
             # Удаляем старый образ
             docker image rm ${{ secrets.DOCKERHUB_USERNAME }}/zpbot:latest || true
 
-            # Запускаем новый контейнер
-            docker-compose up -d --build
+            # Получаем новый образ
+            docker-compose pull
+
+            # Применяем миграции базы данных
+            # Используем docker compose run для запуска команды в новом контейнере с доступом к env_file и volumes
+            docker-compose run --rm bot npx prisma migrate deploy
+
+            # Запускаем новый контейнер в фоновом режиме
+            docker-compose up -d
 
             # Очищаем неиспользуемые образы
             docker image prune -f 
