@@ -3,12 +3,10 @@
   "version": "1.0.0",
   "description": "Telegram bot for salary calculations",
   "main": "dist/index.js",
-  "type": "module",
   "scripts": {
-    "build": "vite build && npm run prisma:generate",
+    "build": "tsc && npm run prisma:generate",
     "start": "node dist/index.js",
     "dev": "ts-node-esm src/index.ts",
-    "preview": "vite preview",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
   },
@@ -29,9 +27,6 @@
   "devDependencies": {
     "@types/node": "^22.15.9",
     "typescript": "^5.3.3",
-    "ts-node": "^10.9.2",
-    "vite": "^6.2.2",
-    "vite-plugin-node": "^5.0.1",
-    "vite-plugin-node-polyfills": "^0.23.0"
+    "ts-node": "^10.9.2"
   }
 }

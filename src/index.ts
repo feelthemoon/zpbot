@@ -2,13 +2,8 @@ import { Telegraf, session } from 'telegraf';
 import { PrismaClient } from '@prisma/client';
 import { getWorkingDays } from './calendar.js';
 import { BotContext } from './types.js';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import { message } from 'telegraf/filters';
 import { Markup } from 'telegraf';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const prisma = new PrismaClient();
 const bot = new Telegraf<BotContext>(process.env.BOT_TOKEN || '');
@@ -112,7 +107,7 @@ bot.on(message('text'), async (ctx) => {
 });
 
 // Error handling
-bot.catch((err, ctx) => {
+bot.catch((_, ctx) => {
   ctx.reply('Произошла ошибка. Пожалуйста, попробуйте позже.');
 });
 
