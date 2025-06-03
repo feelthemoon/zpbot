@@ -4,6 +4,7 @@ import { getWorkingDays } from './calendar.js';
 import { BotContext } from './types.js';
 import { message } from 'telegraf/filters';
 import { Markup } from 'telegraf';
+import { formatThousands } from './utils.js';
 
 const prisma = new PrismaClient();
 const bot = new Telegraf<BotContext>(process.env.BOT_TOKEN || '');
@@ -31,7 +32,7 @@ bot.start(async (ctx) => {
     ctx.session = { ...ctx.session, expectingSalary: true };
   } else {
     await ctx.reply(
-      `Ваша текущая зарплата: ${user.salary} руб.\n\n` +
+      `Ваша текущая зарплата: ${formatThousands(user.salary)} руб.\n\n` +
       'Выберите действие:',
       getMainKeyboard()
     );
@@ -53,7 +54,7 @@ bot.hears('💰 Аванс', async (ctx) => {
   const workingDays = await getWorkingDays();
   const avance = (user.salary / workingDays) * Math.floor(workingDays / 2);
   
-  await ctx.reply(`Аванс за текущий месяц: ${avance.toFixed(2)} руб.`, getMainKeyboard());
+  await ctx.reply(`Аванс за текущий месяц: ${formatThousands(avance.toFixed(2))} руб.`, getMainKeyboard());
 });
 
 // Обработчик кнопки Получка
@@ -72,7 +73,7 @@ bot.hears('💵 Получка', async (ctx) => {
   const avance = (user.salary / workingDays) * Math.floor(workingDays / 2);
   const salary = (user.salary / workingDays) * workingDays - avance;
   
-  await ctx.reply(`Зарплата за текущий месяц: ${salary.toFixed(2)} руб.`, getMainKeyboard());
+  await ctx.reply(`Зарплата за текущий месяц: ${formatThousands(salary.toFixed(2))} руб.`, getMainKeyboard());
 });
 
 // Обработчик кнопки Изменить зарплату
@@ -99,7 +100,7 @@ bot.on(message('text'), async (ctx) => {
 
     ctx.session = { expectingSalary: false };
     await ctx.reply(
-      `Зарплата успешно установлена: ${salary} руб.\n\n` +
+      `Зарплата успешно установлена: ${formatThousands(salary)} руб.\n\n` +
       'Выберите действие:',
       getMainKeyboard()
     );
