@@ -56,7 +56,7 @@ jobs:
             docker-compose run --rm bot npx prisma migrate deploy
 
             # Запускаем новый контейнер в фоновом режиме
-            docker-compose up -d
+            docker-compose up -d --build
 
             # Очищаем неиспользуемые образы
             docker image prune -f 
