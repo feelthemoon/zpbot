@@ -10,8 +10,7 @@
     "dev": "ts-node-esm src/index.ts",
     "preview": "vite preview",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "postinstall": "prisma generate"
+    "prisma:migrate": "prisma migrate dev"
   },
   "keywords": [
     "telegram",
