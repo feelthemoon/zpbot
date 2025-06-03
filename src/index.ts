@@ -107,8 +107,8 @@ bot.on(message('text'), async (ctx) => {
 });
 
 // Error handling
-bot.catch((_, ctx) => {
-  ctx.reply('Произошла ошибка. Пожалуйста, попробуйте позже.');
+bot.catch((err, ctx) => {
+  ctx.reply(`Произошла ошибка. Пожалуйста, попробуйте позже. ${err}`);
 });
 
 // Start the bot
