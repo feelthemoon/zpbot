@@ -1,6 +1,7 @@
 # Используем Node.js 18 как базовый образ
 FROM node:22-alpine AS base
 
+# Для корректной работы prisma
 RUN apk add --no-cache libc6-compat openssl git bash
 
 # Создаем рабочую директорию
