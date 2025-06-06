@@ -1,6 +1,6 @@
 import { Telegraf, session } from 'telegraf';
 import { PrismaClient } from '@prisma/client';
-import { getWorkingDays } from './calendar.js';
+import { getWorkingDays, getWorkingDaysForFirstHalf, getWorkingDaysForSecondHalf, getDayInfo } from './calendar.js';
 import { BotContext } from './types.js';
 import { message } from 'telegraf/filters';
 import { Markup } from 'telegraf';
@@ -51,10 +51,21 @@ bot.hears('💰 Аванс', async (ctx) => {
     return;
   }
 
-  const workingDays = await getWorkingDays();
-  const avance = (user.salary / workingDays) * Math.floor(workingDays / 2);
+  const totalWorkingDays = await getWorkingDays();
+  const firstHalfWorkingDays = await getWorkingDaysForFirstHalf();
+  const avance = (user.salary / totalWorkingDays) * firstHalfWorkingDays;
   
-  await ctx.reply(`Аванс за текущий месяц: ${formatThousands(avance.toFixed(2))} руб.`, getMainKeyboard());
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const fifteenthOfMonth = new Date(now.getFullYear(), now.getMonth(), 15);
+  
+  await ctx.reply(
+    `Аванс за текущий месяц (${formatDate(startOfMonth)} - ${formatDate(fifteenthOfMonth)}):\n` +
+    `• Рабочих дней в первой половине: ${firstHalfWorkingDays}\n` +
+    `• Рабочих дней в месяце: ${totalWorkingDays}\n` +
+    `• Сумма аванса: ${formatThousands(avance.toFixed(2))} руб.`,
+    getMainKeyboard()
+  );
 });
 
 // Обработчик кнопки Получка
@@ -69,11 +80,30 @@ bot.hears('💵 Получка', async (ctx) => {
     return;
   }
 
-  const workingDays = await getWorkingDays();
-  const avance = (user.salary / workingDays) * Math.floor(workingDays / 2);
-  const salary = (user.salary / workingDays) * workingDays - avance;
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const fifteenthOfMonth = new Date(now.getFullYear(), now.getMonth(), 15);
+  const sixteenthOfMonth = new Date(now.getFullYear(), now.getMonth(), 16);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  const totalWorkingDays = await getWorkingDays();
+  const firstHalfWorkingDays = await getWorkingDaysForFirstHalf();
+  const secondHalfWorkingDays = await getWorkingDaysForSecondHalf();
   
-  await ctx.reply(`Зарплата за текущий месяц: ${formatThousands(salary.toFixed(2))} руб.`, getMainKeyboard());
+  const avance = (user.salary / totalWorkingDays) * firstHalfWorkingDays;
+  const salary = (user.salary / totalWorkingDays) * secondHalfWorkingDays;
+  
+  await ctx.reply(
+    `Зарплата за текущий месяц:\n` +
+    `• Первая половина (${formatDate(startOfMonth)} - ${formatDate(fifteenthOfMonth)}):\n` +
+    `  - Рабочих дней: ${firstHalfWorkingDays}\n` +
+    `  - Аванс: ${formatThousands(avance.toFixed(2))} руб.\n` +
+    `• Вторая половина (${formatDate(sixteenthOfMonth)} - ${formatDate(endOfMonth)}):\n` +
+    `  - Рабочих дней: ${secondHalfWorkingDays}\n` +
+    `  - К выплате: ${formatThousands(salary.toFixed(2))} руб.\n` +
+    `• Всего рабочих дней в месяце: ${totalWorkingDays}`,
+    getMainKeyboard()
+  );
 });
 
 // Обработчик кнопки Изменить зарплату
@@ -106,6 +136,13 @@ bot.on(message('text'), async (ctx) => {
     );
   }
 });
+
+// Вспомогательная функция для форматирования даты
+function formatDate(date: Date): string {
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  return `${day}.${month}`;
+}
 
 // Error handling
 bot.catch((_, ctx) => {
