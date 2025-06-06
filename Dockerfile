@@ -12,7 +12,7 @@ COPY ./prisma ./prisma
 COPY package*.json ./
 
 # Устанавливаем зависимости
-RUN npm install
+RUN npm ci
 
 # Копируем исходный код
 COPY . .

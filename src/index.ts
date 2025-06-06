@@ -15,7 +15,7 @@ bot.use(session());
 // Создаем клавиатуру с кнопками
 const getMainKeyboard = () => {
   return Markup.keyboard([
-    ['💰 Аванс', '💵 Получка'],
+    ['💵 Рассчитать зарплату'],
     ['📝 Изменить зарплату']
   ]).resize();
 };
@@ -39,37 +39,8 @@ bot.start(async (ctx) => {
   }
 });
 
-// Обработчик кнопки Аванс
-bot.hears('💰 Аванс', async (ctx) => {
-  const chatId = ctx.chat.id.toString();
-  const user = await prisma.user.findUnique({
-    where: { chatId }
-  });
-
-  if (!user) {
-    await ctx.reply('Пожалуйста, сначала установите вашу зарплату через команду /start');
-    return;
-  }
-
-  const totalWorkingDays = await getWorkingDays();
-  const firstHalfWorkingDays = await getWorkingDaysForFirstHalf();
-  const avance = (user.salary / totalWorkingDays) * firstHalfWorkingDays;
-  
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const fifteenthOfMonth = new Date(now.getFullYear(), now.getMonth(), 15);
-  
-  await ctx.reply(
-    `Аванс за текущий месяц (${formatDate(startOfMonth)} - ${formatDate(fifteenthOfMonth)}):\n` +
-    `• Рабочих дней в первой половине: ${firstHalfWorkingDays}\n` +
-    `• Рабочих дней в месяце: ${totalWorkingDays}\n` +
-    `• Сумма аванса: ${formatThousands(avance.toFixed(2))} руб.`,
-    getMainKeyboard()
-  );
-});
-
 // Обработчик кнопки Получка
-bot.hears('💵 Получка', async (ctx) => {
+bot.hears('💵 Рассчитать зарплату', async (ctx) => {
   const chatId = ctx.chat.id.toString();
   const user = await prisma.user.findUnique({
     where: { chatId }
